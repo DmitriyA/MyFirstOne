@@ -4,8 +4,8 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
+//import org.apache.log4j.Logger;
+//import org.apache.log4j.PropertyConfigurator;
 
 class MyException1 extends Exception{
 	MyException1()
@@ -34,32 +34,73 @@ public class TrainingApp {
 			}
 		}
 	}
-	private static final Logger logger = Logger.getLogger(TrainingApp.class);
+	//private static final Logger logger = Logger.getLogger(TrainingApp.class);
 	public static void main(String[] args)throws SQLException{
 		
-		String url = "jdbc:postgresql://127.0.0.1:5432/test";
+		String url = "jdbc:postgresql://localhost:5432/book";//jdbc:postgresql://localhost:5432/oo-test"
 		String username = "postgres";
 		String password = "postgres";
 				
 		Connection connection = DriverManager.getConnection(url,username,password);	
-		PreparedStatement pStatement = connection.prepareStatement("INSERT INTO book (author,bookname) VALUES ('qwerty','bname')",
-				Statement.RETURN_GENERATED_KEYS);
+		PreparedStatement pStatement = connection.prepareStatement("Select * from products inner join orders on products.product_no=orders.product_no");
+		ResultSet result = pStatement.executeQuery();
+		while (result.next()) {
+			//Long insertedId = generatedKeys.getLong(1);
+			String productNo = result.getString("product_no");
+			String name = result.getString("name");
+			String price = result.getString("price");
+			String quantity = result.getString("quantity");
+			System.out.println(productNo + "\t" + name + "\t" + price + "\t" + quantity);
+		}
+		System.out.println();
 		
-		System.out.println(pStatement.executeUpdate());
+		PreparedStatement pStatement2 = connection.prepareStatement("SELECT * FROM book_base WHERE id = ?");
+		//Statement.RETURN_GENERATED_KEYS
+		int i = 1;
+		while(i <= 4)
+		{
+			pStatement2.setLong(1, i++);
 		
+			ResultSet result2 = pStatement2.executeQuery();
+			while (result2.next()) {
+				//Long insertedId = generatedKeys.getLong(1);
+				String author = result2.getString("author");
+				String bookName = result2.getString("bookname");
+
+				System.out.println(author + "\t\t" + bookName);
+			}
+		}
 		
+		//PropertyConfigurator.configure("log.conf");
 		
-		
-		
-		PropertyConfigurator.configure("log.conf");
-		
-		logger.info("test message");
+		//logger.info("test message");
 		ArrayList<Employee> employees = new ArrayList<Employee>();
 		
 		employees.add(new JavaProgrammer(new Date(), "Ruslan","Danilin",24, 500, 10, 15, "EE"));
 		employees.add(new JavaProgrammer(new Date(), "Dmitriy","Avseitsev",22, 2000, 9, 25, "SE"));
 		employees.add(new Tester(new Date(), "Olya","Tester", 18, 200, false));
-		employees.add(new Tester(new Date(), "Tanya","Tester", 19, 210, true));
+		//employees.add(new Tester(new Date(), "Tanya","Tester", 19, 210, true));
+		
+		
+		
+		//connection.setAutoCommit(false);
+		
+		PreparedStatement pStatementInsert = connection.prepareStatement("INSERT INTO autors(author)  Values (?)");
+		for(Employee empl : employees){
+			pStatementInsert.setString(1, "" + empl.getFirstName() + "  " + empl.getLastName() + "");
+			pStatementInsert.executeUpdate();
+		}
+
+	
+		//connection.commit();
+		
+		System.out.println();
+		PreparedStatement pStatementSelect = connection.prepareStatement("SELECT * FROM autors");
+		ResultSet resultSelect = pStatementSelect.executeQuery();
+		while (resultSelect.next()) {
+			String author = resultSelect.getString("author");
+			System.out.println(author);
+		}
 		
 		/*for(Employee empl : employees){
 			System.out.println(empl.getFirstName() + ": " + empl.getDate()+" : "+empl.hireDate);
@@ -68,7 +109,7 @@ public class TrainingApp {
 		}
  		*/
 		
-		System.out.println((employees.get(1)).equals(employees.get(0)));
+		/*System.out.println((employees.get(1)).equals(employees.get(0)));
 		
 		try
 		{
@@ -84,7 +125,7 @@ public class TrainingApp {
 		catch(Exception ex2)
 		{
 			logger.error(ex2);
-		}
+		}*/
 	}
 }
 /*
